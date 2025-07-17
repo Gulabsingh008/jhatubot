@@ -7,3 +7,7 @@ python-dotenv
 pytz
 tgcrypto
 flask
+motor                   # for MongoDB async
+pyrogram               # Telegram bot framework
+dnspython              # MongoDB Atlas use करने पर ज़रूरी
+gunicorn               # Flask को deploy करने के लिए
