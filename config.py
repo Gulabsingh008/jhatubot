@@ -11,11 +11,9 @@ DUMP_CHAT_ID = int(os.environ.get('DUMP_CHAT_ID', '-1002030723564'))
 FSUB_ID = int(os.environ.get('FSUB_ID', '-1002237630219'))
 
 #mongodb 
-
-#MONGO_URL = os.getenv("MONGO_URL", "")
+MONGO_URL = os.getenv("MONGO_URL", "mongodb+srv://ravi:ravi12345@cluster0.hndinhj.mongodb.net/?retryWrites=true&w=majority")
 
 ADMINS = list(map(int, os.getenv("ADMINS", "1114789110").split()))
-
 
 # User Session
 USER_SESSION_STRING = os.environ.get('USER_SESSION_STRING', '')
