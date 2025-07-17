@@ -14,6 +14,9 @@ FSUB_ID = int(os.environ.get('FSUB_ID', '-1002237630219'))
 
 #MONGO_URL = os.getenv("MONGO_URL", "")
 
+ADMINS = list(map(int, os.getenv("ADMINS", "1114789110").split()))
+
+
 # User Session
 USER_SESSION_STRING = os.environ.get('USER_SESSION_STRING', '')
 if not USER_SESSION_STRING:
