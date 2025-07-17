@@ -92,8 +92,18 @@ def format_size(size):
     else:
         return f"{size / (1024 * 1024 * 1024):.2f} GB"
 
+
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
+    user_id = message.from_user.id
+    name = message.from_user.first_name or "Unknown"
+
+    await add_user(user_id, name)         # ✅ Save user to MongoDB
+    is_user_banned = await is_banned(user_id)  # ✅ Check if user is banned
+
+    if is_user_banned:
+        return await message.reply_text("🚫 You are banned from using this bot.")
+
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
     developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
     repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
@@ -107,15 +117,9 @@ async def start_command(client: Client, message: Message):
             photo=image_path,
             caption=final_msg,
             reply_markup=reply_markup
-            )
+        )
     else:
         await message.reply_text(final_msg, reply_markup=reply_markup)
-
-async def update_status_message(status_message, text):
-    try:
-        await status_message.edit_text(text)
-    except Exception as e:
-        logger.error(f"Failed to update status message: {e}")
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
@@ -125,8 +129,15 @@ async def handle_message(client: Client, message: Message):
         return
 
     user_id = message.from_user.id
-    is_member = await is_user_member(client, user_id)
+    name = message.from_user.first_name or "Unknown"
 
+    await add_user(user_id, name)         # ✅ MongoDB user tracking
+    is_user_banned = await is_banned(user_id)  # ✅ Check ban
+
+    if is_user_banned:
+        return await message.reply_text("🚫 You are banned from using this bot.")
+
+    is_member = await is_user_member(client, user_id)
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
         reply_markup = InlineKeyboardMarkup([[join_button]])
