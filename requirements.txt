@@ -1,13 +1,13 @@
-aiohttp
-uvloop
-requests
-aria2p
+pyrogram               # Telegram bot
+tgcrypto               # Pyrogram को तेज़ बनाता है (optional लेकिन recommended)
+uvloop                 # Fast async loop
+flask                  # Health check page के लिए
+aiohttp                # अगर कहीं HTTP client यूज़ कर रहे हो
+requests               # अगर कहीं simple requests यूज़ हो
+motor                 # MongoDB async client
+dnspython             # MongoDB Atlas के लिए
+python-dotenv         # env file से config लेने के लिए
+aria2p                # अगर aria2 से download हो रहा है
+
+# Pyrogram का patched/fixed fork
 git+https://github.com/Hrishi2861/pyrofork-2.2.11-peer-fix.git
-python-dotenv
-pytz
-tgcrypto
-flask
-motor                   # for MongoDB async
-pyrogram               # Telegram bot framework
-dnspython              # MongoDB Atlas use करने पर ज़रूरी
-gunicorn               # Flask को deploy करने के लिए
