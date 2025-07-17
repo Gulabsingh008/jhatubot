@@ -101,12 +101,12 @@ async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
     name = message.from_user.first_name or "Unknown"
 
-    
-    await add_user(user_id, name)         # ✅ Save user to MongoDB
-    is_user_banned = await is_banned(user_id)  # ✅ Check if user is banned
-except Exception as e:
-    logger.error(f"Mongo Error: {e}")
-    return await message.reply_text("⚠️ Database error. Try again later.")
+    try:
+        await add_user(user_id, name)         # ✅ Save user to MongoDB
+        is_user_banned = await is_banned(user_id)  # ✅ Check if user is banned
+    except Exception as e:
+        logger.error(f"Mongo Error: {e}")
+        return await message.reply_text("⚠️ Database error. Try again later.")
 
     if is_user_banned:
         return await message.reply_text("🚫 You are banned from using this bot.")
@@ -114,10 +114,17 @@ except Exception as e:
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
     developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
     repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
+
     user_mention = message.from_user.mention
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button], [repo69]])
-    final_msg = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
-    image_path  = "/app/start.jpg"
+    final_msg = (
+        f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n"
+        "🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. "
+        "sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ "
+        "sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
+    )
+
+    image_path = "/app/start.jpg"
     if os.path.exists(image_path):
         await client.send_photo(
             chat_id=message.chat.id,
@@ -127,7 +134,6 @@ except Exception as e:
         )
     else:
         await message.reply_text(final_msg, reply_markup=reply_markup)
-
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
     if message.text.startswith('/'):
