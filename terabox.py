@@ -46,54 +46,25 @@ options = {
 
 aria2.set_global_options(options)
 
-API_ID = os.environ.get('TELEGRAM_API', '26494161')
-if len(API_ID) == 0:
-    logging.error("TELEGRAM_API variable is missing! Exiting now")
-    exit(1)
+from config import (
+    API_ID,
+    API_HASH,
+    BOT_TOKEN,
+    DUMP_CHAT_ID,
+    FSUB_ID,
+    USER_SESSION_STRING,
+    VALID_DOMAINS,
+    SPLIT_SIZE
+)
 
-API_HASH = os.environ.get('TELEGRAM_HASH', '55da841f877d16a3a806169f3c5153d3')
-if len(API_HASH) == 0:
-    logging.error("TELEGRAM_HASH variable is missing! Exiting now")
-    exit(1)
-    
-BOT_TOKEN = os.environ.get('BOT_TOKEN', '7758524025:AAEVf_OePVQ-6hhM1GfvRlqX3QZIqDOivtw')
-if len(BOT_TOKEN) == 0:
-    logging.error("BOT_TOKEN variable is missing! Exiting now")
-    exit(1)
-
-DUMP_CHAT_ID = os.environ.get('DUMP_CHAT_ID', '-1002030723564')
-if len(DUMP_CHAT_ID) == 0:
-    logging.error("DUMP_CHAT_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    DUMP_CHAT_ID = int(DUMP_CHAT_ID)
-
-FSUB_ID = os.environ.get('FSUB_ID', '-1002237630219')
-if len(FSUB_ID) == 0:
-    logging.error("FSUB_ID variable is missing! Exiting now")
-    exit(1)
-else:
-    FSUB_ID = int(FSUB_ID)
-
-USER_SESSION_STRING = os.environ.get('USER_SESSION_STRING', '')
-if len(USER_SESSION_STRING) == 0:
-    logging.info("USER_SESSION_STRING variable is missing! Bot will split Files in 2Gb...")
-    USER_SESSION_STRING = None
+from pyrogram import Client
 
 app = Client("jetbot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 user = None
-SPLIT_SIZE = 2093796556
 if USER_SESSION_STRING:
     user = Client("jetu", api_id=API_ID, api_hash=API_HASH, session_string=USER_SESSION_STRING)
-    SPLIT_SIZE = 4241280205
 
-VALID_DOMAINS = [
-    'terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 
-    'momerybox.com', 'teraboxapp.com', '1024tera.com', 
-    'terabox.app', 'gibibox.com', 'goaibox.com', 'terasharelink.com', 
-    'teraboxlink.com', 'terafileshare.com'
-]
 last_update_time = 0
 
 async def is_user_member(client, user_id):
