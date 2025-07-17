@@ -172,9 +172,23 @@ async def handle_message(client: Client, message: Message):
         return
 
     encoded_url = urllib.parse.quote(url)
-    final_url = f"https://teradlrobot.cheemsbackup.workers.dev/?url={encoded_url}"
+    api_url = f"https://zozo-api.onrender.com/download?url={encoded_url}"
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api_url) as resp:
+            if resp.status != 200:
+                await message.reply_text("❌ Failed to fetch API data. Please try again later.")
+                return
+            data = await resp.json()
+            download_link = data.get("download_link")
+            if not download_link:
+                await message.reply_text("❌ Could not find download link from API.")
+                return
+            file_name = data.get("name", "Unknown File")
+    
+    # Add Aria2 download
+    download = aria2.add_uris([download_link])
 
-    download = aria2.add_uris([final_url])
     status_message = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
 
     start_time = datetime.now()
