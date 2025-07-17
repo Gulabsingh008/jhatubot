@@ -123,17 +123,17 @@ def format_size(size):
 
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
-    developer_button = InlineKeyboardButton("ᴅᴇᴠᴇʟᴏᴘᴇʀ ⚡️", url="https://t.me/rtx5069")
-    repo69 = InlineKeyboardButton("ʀᴇᴘᴏ 🌐", url="https://github.com/Hrishi2861/Terabox-Downloader-Bot")
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
+    developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
+    repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
     user_mention = message.from_user.mention
     reply_markup = InlineKeyboardMarkup([[join_button, developer_button], [repo69]])
     final_msg = f"ᴡᴇʟᴄᴏᴍᴇ, {user_mention}.\n\n🌟 ɪ ᴀᴍ ᴀ ᴛᴇʀᴀʙᴏx ᴅᴏᴡɴʟᴏᴀᴅᴇʀ ʙᴏᴛ. sᴇɴᴅ ᴍᴇ ᴀɴʏ ᴛᴇʀᴀʙᴏx ʟɪɴᴋ ɪ ᴡɪʟʟ ᴅᴏᴡɴʟᴏᴀᴅ ᴡɪᴛʜɪɴ ғᴇᴡ sᴇᴄᴏɴᴅs ᴀɴᴅ sᴇɴᴅ ɪᴛ ᴛᴏ ʏᴏᴜ ✨."
-    video_file_id = "/app/Jet-Mirror.mp4"
+    image_path  = "/app/start.jpg"
     if os.path.exists(video_file_id):
         await client.send_video(
             chat_id=message.chat.id,
-            video=video_file_id,
+            photo=image_path,
             caption=final_msg,
             reply_markup=reply_markup
             )
@@ -157,7 +157,7 @@ async def handle_message(client: Client, message: Message):
     is_member = await is_user_member(client, user_id)
 
     if not is_member:
-        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/jetmirror")
+        join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
         reply_markup = InlineKeyboardMarkup([[join_button]])
         await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
         return
@@ -190,7 +190,7 @@ async def handle_message(client: Client, message: Message):
     # Add Aria2 download
     download = aria2.add_uris([download_link])
 
-    status_message = await message.reply_text("sᴇɴᴅɪɴɢ ʏᴏᴜ ᴛʜᴇ ᴍᴇᴅɪᴀ...🤤")
+    status_message = await message.reply_text("ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ, ʏᴏᴜʀ ғɪʟᴇ ɪs ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ.✇")
 
     start_time = datetime.now()
 
@@ -204,10 +204,9 @@ async def handle_message(client: Client, message: Message):
 
         status_text = (
             f"┏ ғɪʟᴇɴᴀᴍᴇ: {download.name}\n"
-            f"┠ [{'★' * int(progress / 10)}{'☆' * (10 - int(progress / 10))}] {progress:.2f}%\n"
+            f"┠ [{'▰' * int(progress / 10)}{'▱' * (10 - int(progress / 10))}] {progress:.2f}%\n"
             f"┠ ᴘʀᴏᴄᴇssᴇᴅ: {format_size(download.completed_length)} ᴏғ {format_size(download.total_length)}\n"
             f"┠ sᴛᴀᴛᴜs: 📥 Downloading\n"
-            f"┠ ᴇɴɢɪɴᴇ: <b><u>Aria2c v1.37.0</u></b>\n"
             f"┠ sᴘᴇᴇᴅ: {format_size(download.download_speed)}/s\n"
             f"┠ ᴇᴛᴀ: {download.eta} | ᴇʟᴀᴘsᴇᴅ: {elapsed_minutes}m {elapsed_seconds}s\n"
             f"┖ ᴜsᴇʀ: <a href='tg://user?id={user_id}'>{message.from_user.first_name}</a> | ɪᴅ: {user_id}\n"
@@ -225,7 +224,7 @@ async def handle_message(client: Client, message: Message):
         f"✨ {download.name}\n"
         f"👤 ʟᴇᴇᴄʜᴇᴅ ʙʏ : <a href='tg://user?id={user_id}'>{message.from_user.first_name}</a>\n"
         f"📥 ᴜsᴇʀ ʟɪɴᴋ: tg://user?id={user_id}\n\n"
-        "[ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴊᴇᴛ-ᴍɪʀʀᴏʀ ❤️🚀](https://t.me/JetMirror)"
+        "[ᴘᴏᴡᴇʀᴇᴅ ʙʏ ᴀғ ʙᴏᴛᴢ❤️🚀](https://t.me/+OiKmB79YlMJmNTJl)"
     )
 
     last_update_time = time.time()
@@ -252,7 +251,7 @@ async def handle_message(client: Client, message: Message):
 
         status_text = (
             f"┏ ғɪʟᴇɴᴀᴍᴇ: {download.name}\n"
-            f"┠ [{'★' * int(progress / 10)}{'☆' * (10 - int(progress / 10))}] {progress:.2f}%\n"
+            f"┠ [{'▰' * int(progress / 10)}{'▱' * (10 - int(progress / 10))}] {progress:.2f}%\n"
             f"┠ ᴘʀᴏᴄᴇssᴇᴅ: {format_size(current)} ᴏғ {format_size(total)}\n"
             f"┠ sᴛᴀᴛᴜs: 📤 Uploading to Telegram\n"
             f"┠ ᴇɴɢɪɴᴇ: <b><u>PyroFork v2.2.11</u></b>\n"
