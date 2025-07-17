@@ -16,6 +16,8 @@ from flask import Flask, render_template
 from threading import Thread
 import aiohttp  # इसे जोड़ें
 from database.mongodb import add_user, is_banned 
+from handlers import admin  # या जहाँ admin.py रखा हो
+
 
 load_dotenv('config.env', override=True)
 logging.basicConfig(
