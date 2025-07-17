@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 from flask import Flask, render_template
 from threading import Thread
 import aiohttp  # इसे जोड़ें
+from database.mongodb import add_user, is_banned 
 
 load_dotenv('config.env', override=True)
 logging.basicConfig(
