@@ -14,6 +14,7 @@ import urllib.parse
 from urllib.parse import urlparse
 from flask import Flask, render_template
 from threading import Thread
+import aiohttp  # इसे जोड़ें
 
 load_dotenv('config.env', override=True)
 logging.basicConfig(
