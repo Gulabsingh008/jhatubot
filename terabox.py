@@ -1,22 +1,23 @@
 from aria2p import API as Aria2API, Client as Aria2Client
 import asyncio
-from dotenv import load_dotenv
-from datetime import datetime
-import os
 import logging
 import math
-from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
-from pyrogram.enums import ChatMemberStatus
-from pyrogram.errors import FloodWait
 import time
+import os
+from datetime import datetime
+from dotenv import load_dotenv
 import urllib.parse
 from urllib.parse import urlparse
 from flask import Flask, render_template
 from threading import Thread
-import aiohttp  # इसे जोड़ें
-from database.mongodb import add_user, is_banned 
-from handlers import admin  # या जहाँ admin.py रखा हो
+from pyrogram import Client, filters
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import FloodWait
+import aiohttp
+from database.mongodb import add_user, is_banned
+from handlers import admin  # Make sure there's a file named admin.py
+
 
 
 load_dotenv('config.env', override=True)
@@ -418,12 +419,16 @@ def run_user():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(start_user_client())
 
+flask_app = Flask(__name__)
+
+@flask_app.route("/")
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    flask_app.run(host="0.0.0.0", port=5000)
+
 if __name__ == "__main__":
-    keep_alive()
-
-    if user:
-        logger.info("Starting user client...")
-        Thread(target=run_user).start()
-
-    logger.info("Starting bot client...")
+    Thread(target=run_flask).start()
+    uvloop.install()
     app.run()
