@@ -101,8 +101,12 @@ async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
     name = message.from_user.first_name or "Unknown"
 
+    
     await add_user(user_id, name)         # ✅ Save user to MongoDB
     is_user_banned = await is_banned(user_id)  # ✅ Check if user is banned
+except Exception as e:
+    logger.error(f"Mongo Error: {e}")
+    return await message.reply_text("⚠️ Database error. Try again later.")
 
     if is_user_banned:
         return await message.reply_text("🚫 You are banned from using this bot.")
