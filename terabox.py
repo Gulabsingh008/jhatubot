@@ -68,7 +68,7 @@ if len(DUMP_CHAT_ID) == 0:
 else:
     DUMP_CHAT_ID = int(DUMP_CHAT_ID)
 
-FSUB_ID = os.environ.get('FSUB_ID', '-1002030723564')
+FSUB_ID = os.environ.get('FSUB_ID', '-1002237630219')
 if len(FSUB_ID) == 0:
     logging.error("FSUB_ID variable is missing! Exiting now")
     exit(1)
