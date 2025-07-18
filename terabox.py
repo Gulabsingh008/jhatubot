@@ -210,7 +210,7 @@ async def handle_message(client: Client, message: Message):
             )
         while True:
             try:
-                await update_status_message(status_message, status_text)
+                await update_status(status_message, status_text)
                 break
             except FloodWait as e:
                 logger.error(f"Flood wait detected! Sleeping for {e.value} seconds")
