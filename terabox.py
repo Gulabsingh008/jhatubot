@@ -182,6 +182,9 @@ async def stats_command(client, message):
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
+    if await is_banned(message.from_user.id):
+        await message.reply("🚫 Aap ban hai, isliye aap bot ka use nahi kar sakte.")
+        return
     if message.text.startswith('/'):
         return
     if not message.from_user:
