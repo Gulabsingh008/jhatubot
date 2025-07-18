@@ -3,6 +3,7 @@ import asyncio
 import logging
 import math
 import time
+import uvloop
 import os
 from datetime import datetime
 from dotenv import load_dotenv
