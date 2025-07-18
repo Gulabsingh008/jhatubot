@@ -16,7 +16,7 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import FloodWait
 import aiohttp
-from database.mongodb import save_user, ban_user, unban_user, is_banned, users_collection
+from database.mongodb import save_user, users_collection
 ADMIN_USER_ID = 7170452349  # apna Telegram user_id yahan likhein
 
 
@@ -155,25 +155,6 @@ async def broadcast_command(client, message):
 
     await message.reply(f"Broadcast sent to {count} users.")
 
-
-@app.on_message(filters.command("ban") & filters.user(ADMIN_USER_ID))
-async def ban_command(client, message):
-    if len(message.command) < 2:
-        await message.reply("Ban command: /ban <user_id>")
-        return
-    user_id = int(message.command[1])
-    await ban_user(user_id)
-    await message.reply(f"User {user_id} banned.")
-
-@app.on_message(filters.command("unban") & filters.user(ADMIN_USER_ID))
-async def unban_command(client, message):
-    if len(message.command) < 2:
-        await message.reply("Unban command: /unban <user_id>")
-        return
-    user_id = int(message.command[1])
-    await unban_user(user_id)
-    await message.reply(f"User {user_id} unbanned.")
-
 @app.on_message(filters.command("stats") & filters.user(ADMIN_USER_ID))
 async def stats_command(client, message):
     total_users = await users_collection.count_documents({})
@@ -182,21 +163,14 @@ async def stats_command(client, message):
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
+    if message.text.startswith('/'):
+        return
     if not message.from_user:
         return
 
-    # 1. Sabse pehle ban check
-    if await is_banned(message.from_user.id):
-        await message.reply("🚫 Aap ban hai, isliye aap bot ka use nahi kar sakte.")
-        return
-
-    # 2. Command ignore
-    if message.text.startswith('/'):
-        return
-
-    # 3. Force sub check ab yahan
     user_id = message.from_user.id
     is_member = await is_user_member(client, user_id)
+
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
         reply_markup = InlineKeyboardMarkup([[join_button]])
@@ -205,9 +179,6 @@ async def handle_message(client: Client, message: Message):
             reply_markup=reply_markup
         )
         return
-
-    # 4. Ab yahan se pura download/processing code chalao
-    # ...baaki aapka code...
     
     url = None
     for word in message.text.split():
