@@ -182,9 +182,12 @@ async def stats_command(client, message):
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
+    # 1. Ban check sabse pehle
     if await is_banned(message.from_user.id):
         await message.reply("🚫 Aap ban hai, isliye aap bot ka use nahi kar sakte.")
         return
+
+    # 2. Command ignore
     if message.text.startswith('/'):
         return
     if not message.from_user:
@@ -193,6 +196,7 @@ async def handle_message(client: Client, message: Message):
     user_id = message.from_user.id
     name = message.from_user.first_name or "Unknown"
 
+    # 3. Force sub check ab yahan karo
     is_member = await is_user_member(client, user_id)
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
