@@ -182,14 +182,11 @@ async def stats_command(client, message):
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
-    # 1. Ban check sabse pehle
-    if await is_banned(message.from_user.id):
-        if not message.from_user:
+    if not message.from_user:
         return
-        user_id = message.from_user.id
-        name = message.from_user.first_name or "Unknown"
 
-    
+    # 1. Sabse pehle ban check
+    if await is_banned(message.from_user.id):
         await message.reply("🚫 Aap ban hai, isliye aap bot ka use nahi kar sakte.")
         return
 
@@ -197,13 +194,20 @@ async def handle_message(client: Client, message: Message):
     if message.text.startswith('/'):
         return
 
-    # 3. Force sub check ab yahan karo
+    # 3. Force sub check ab yahan
+    user_id = message.from_user.id
     is_member = await is_user_member(client, user_id)
     if not is_member:
         join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
         reply_markup = InlineKeyboardMarkup([[join_button]])
-        await message.reply_text("ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.", reply_markup=reply_markup)
+        await message.reply_text(
+            "ʏᴏᴜ ᴍᴜsᴛ ᴊᴏɪɴ ᴍʏ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴜsᴇ ᴍᴇ.",
+            reply_markup=reply_markup
+        )
         return
+
+    # 4. Ab yahan se pura download/processing code chalao
+    # ...baaki aapka code...
     
     url = None
     for word in message.text.split():
