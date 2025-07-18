@@ -103,6 +103,7 @@ async def start_command(client: Client, message: Message):
     user_id = message.from_user.id
     username = message.from_user.username or ""
     await save_user(user_id, username)
+    logger.info(f"New user started: ID={user_id}, Username=@{username}")
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
     developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
     repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
@@ -130,6 +131,27 @@ async def update_status_message(status_message, text):
         await status_message.edit_text(text)
     except Exception as e:
         logger.error(f"Failed to update status message: {e}")
+
+from pyrogram import filters
+
+@app.on_message(filters.command("broadcast") & filters.user(ADMIN_USER_ID))
+async def broadcast_command(client, message):
+    if len(message.command) < 2:
+        await message.reply("Broadcast message likho. Example:\n/broadcast Hello all!")
+        return
+
+    broadcast_text = message.text.split(" ", 1)[1]
+    count = 0
+
+    async for user in users_collection.find({}):
+        try:
+            await client.send_message(user["user_id"], broadcast_text)
+            count += 1
+        except Exception as e:
+            # User blocked bot or left, ignore
+            continue
+
+    await message.reply(f"Broadcast sent to {count} users.")
 
 
 @app.on_message(filters.text)
