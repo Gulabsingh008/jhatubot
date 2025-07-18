@@ -16,6 +16,7 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import FloodWait
 import aiohttp
+import subprocess
 from database.mongodb import save_user, users_collection
 ADMIN_USER_ID = 7170452349  # apna Telegram user_id yahan likhein
 
@@ -334,34 +335,42 @@ async def handle_message(client: Client, message: Message):
             raise
 
     async def handle_upload():
+    # ⏱️ Start
         file_size = os.path.getsize(file_path)
-        
+        thumb = extract_thumbnail(file_path)
+        duration = get_duration(file_path)
+    
         if file_size > SPLIT_SIZE:
             await update_status(
                 status_message,
                 f"✂️ Splitting {download.name} ({format_size(file_size)})"
             )
-            
+    
             split_files = await split_video_with_ffmpeg(
                 file_path,
                 os.path.splitext(file_path)[0],
                 SPLIT_SIZE
             )
-            
+    
             try:
                 for i, part in enumerate(split_files):
                     part_caption = f"{caption}\n\nPart {i+1}/{len(split_files)}"
+                    part_thumb = extract_thumbnail(part)
+                    part_duration = get_duration(part)
+    
                     await update_status(
                         status_message,
                         f"📤 Uploading part {i+1}/{len(split_files)}\n"
                         f"{os.path.basename(part)}"
                     )
-                    
+    
                     if USER_SESSION_STRING:
                         sent = await user.send_video(
-                            DUMP_CHAT_ID, part, 
+                            DUMP_CHAT_ID, part,
                             caption=part_caption,
-                            progress=upload_progress
+                            progress=upload_progress,
+                            thumb=part_thumb,
+                            duration=part_duration
                         )
                         await app.copy_message(
                             message.chat.id, DUMP_CHAT_ID, sent.id
@@ -370,29 +379,39 @@ async def handle_message(client: Client, message: Message):
                         sent = await client.send_video(
                             DUMP_CHAT_ID, part,
                             caption=part_caption,
-                            progress=upload_progress
+                            progress=upload_progress,
+                            thumb=part_thumb,
+                            duration=part_duration
                         )
                         await client.send_video(
                             message.chat.id, sent.video.file_id,
                             caption=part_caption
                         )
+    
                     os.remove(part)
+                    if part_thumb and os.path.exists(part_thumb):
+                        os.remove(part_thumb)
+    
             finally:
                 for part in split_files:
-                    try: os.remove(part)
-                    except: pass
+                    try:
+                        os.remove(part)
+                    except:
+                        pass
         else:
             await update_status(
                 status_message,
                 f"📤 Uploading {download.name}\n"
                 f"Size: {format_size(file_size)}"
             )
-            
+    
             if USER_SESSION_STRING:
                 sent = await user.send_video(
                     DUMP_CHAT_ID, file_path,
                     caption=caption,
-                    progress=upload_progress
+                    progress=upload_progress,
+                    thumb=thumb,
+                    duration=duration
                 )
                 await app.copy_message(
                     message.chat.id, DUMP_CHAT_ID, sent.id
@@ -401,23 +420,22 @@ async def handle_message(client: Client, message: Message):
                 sent = await client.send_video(
                     DUMP_CHAT_ID, file_path,
                     caption=caption,
-                    progress=upload_progress
+                    progress=upload_progress,
+                    thumb=thumb,
+                    duration=duration
                 )
                 await client.send_video(
                     message.chat.id, sent.video.file_id,
                     caption=caption
                 )
+    
+        # Cleanup thumbnail
+        if thumb and os.path.exists(thumb):
+            os.remove(thumb)
+    
+        # Cleanup file
         if os.path.exists(file_path):
             os.remove(file_path)
-
-    start_time = datetime.now()
-    await handle_upload()
-
-    try:
-        await status_message.delete()
-        await message.delete()
-    except Exception as e:
-        logger.error(f"Cleanup error: {e}")
 
 
 flask_app = Flask(__name__)
