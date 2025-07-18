@@ -399,31 +399,18 @@ async def handle_message(client: Client, message: Message):
         logger.error(f"Cleanup error: {e}")
 
 
-
-from flask import Flask, render_template
-from threading import Thread
-import asyncio
-import uvloop
-import logging
-
-# Optional: Logging Setup
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# --- Flask App Setup ---
 flask_app = Flask(__name__)
 
-@flask_app.route("/")
+@flask_app.route('/')
 def home():
     return render_template("index.html")
 
 def run_flask():
-    flask_app.run(host="0.0.0.0", port=5000)
+    flask_app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 def keep_alive():
     Thread(target=run_flask).start()
 
-# --- Telethon Setup (Userbot) ---
 async def start_user_client():
     if user:
         await user.start()
@@ -434,8 +421,12 @@ def run_user():
     asyncio.set_event_loop(loop)
     loop.run_until_complete(start_user_client())
 
-# --- Main ---
 if __name__ == "__main__":
-    uvloop.install()
-    keep_alive()         # ✅ Start Flask on background thread
-    run_user()           # ✅ Start Telethon user bot
+    keep_alive()
+
+    if user:
+        logger.info("Starting user client...")
+        Thread(target=run_user).start()
+
+    logger.info("Starting bot client...")
+    app.run()
