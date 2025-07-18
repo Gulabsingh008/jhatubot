@@ -16,7 +16,7 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.errors import FloodWait
 import aiohttp
-from database.mongodb import save_user, users_collection
+from database.mongodb import save_user, ban_user, unban_user, is_banned, users_collection
 ADMIN_USER_ID = 7170452349  # apna Telegram user_id yahan likhein
 
 
@@ -105,6 +105,7 @@ async def start_command(client: Client, message: Message):
     username = message.from_user.username or ""
     await save_user(user_id, username)
     logger.info(f"New user started: ID={user_id}, Username=@{username}")
+    
     join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
     developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
     repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
@@ -154,6 +155,30 @@ async def broadcast_command(client, message):
 
     await message.reply(f"Broadcast sent to {count} users.")
 
+
+@app.on_message(filters.command("ban") & filters.user(ADMIN_USER_ID))
+async def ban_command(client, message):
+    if len(message.command) < 2:
+        await message.reply("Ban command: /ban <user_id>")
+        return
+    user_id = int(message.command[1])
+    await ban_user(user_id)
+    await message.reply(f"User {user_id} banned.")
+
+@app.on_message(filters.command("unban") & filters.user(ADMIN_USER_ID))
+async def unban_command(client, message):
+    if len(message.command) < 2:
+        await message.reply("Unban command: /unban <user_id>")
+        return
+    user_id = int(message.command[1])
+    await unban_user(user_id)
+    await message.reply(f"User {user_id} unbanned.")
+
+@app.on_message(filters.command("stats") & filters.user(ADMIN_USER_ID))
+async def stats_command(client, message):
+    total_users = await users_collection.count_documents({})
+    banned_users = await users_collection.count_documents({"is_banned": True})
+    await message.reply(f"Total users: {total_users}\nBanned users: {banned_users}")
 
 @app.on_message(filters.text)
 async def handle_message(client: Client, message: Message):
