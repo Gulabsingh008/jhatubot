@@ -200,14 +200,14 @@ async def handle_message(client: Client, message: Message):
                 await message.reply_text("❌ Failed to fetch API data. Please try again later.")
                 return
             data = await resp.json()
-            download_link = data.get("download_link")
-            if not download_link:
+            download_link1 = data.get("direct_download_link")
+            if not download_link1:
                 await message.reply_text("❌ Could not find download link from API.")
                 return
             file_name = data.get("name", "Unknown File")
     
     # Add Aria2 download
-    download = aria2.add_uris([download_link])
+    download = aria2.add_uris([download_link1])
 
     status_message = await message.reply_text("ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ, ʏᴏᴜʀ ғɪʟᴇ ɪs ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ.✇")
 
