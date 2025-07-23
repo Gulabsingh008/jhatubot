@@ -107,7 +107,7 @@ async def start_command(client: Client, message: Message):
     await save_user(user_id, username)
     logger.info(f"New user started: ID={user_id}, Username=@{username}")
     
-    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤️🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
+    join_button = InlineKeyboardButton("ᴊᴏɪɴ ❤🚀", url="https://t.me/+OiKmB79YlMJmNTJl")
     developer_button = InlineKeyboardButton("ᴍᴏᴠɪᴇ ʙᴏᴛ ⚡️", url="https://t.me/reelify_bot")
     repo69 = InlineKeyboardButton("ᴏᴡɴᴇʀ ♚", url="https://t.me/Af_mhakal")
     user_mention = message.from_user.mention
