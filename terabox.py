@@ -192,7 +192,7 @@ async def handle_message(client: Client, message: Message):
         return
 
     encoded_url = urllib.parse.quote(url)
-    api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?url={encoded_url}"
+    api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?share_url={encoded_url}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(api_url) as resp:
