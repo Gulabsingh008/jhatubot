@@ -18,6 +18,7 @@ from pyrogram.errors import FloodWait
 import aiohttp
 import subprocess
 from database.mongodb import save_user, users_collection
+
 ADMIN_USER_ID = 7170452349  # apna Telegram user_id yahan likhein
 
 
@@ -191,8 +192,8 @@ async def handle_message(client: Client, message: Message):
         await message.reply_text("Please provide a valid Terabox link.")
         return
 
-    encoded_url = urllib.parse.quote(url)
-    api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?share_url={encoded_url}"
+    encoded_url = urllib.parse.quote(url, safe='')
+    api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?url={encoded_url}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(api_url) as resp:
@@ -200,14 +201,14 @@ async def handle_message(client: Client, message: Message):
                 await message.reply_text("❌ Failed to fetch API data. Please try again later.")
                 return
             data = await resp.json()
-            download_link1 = data.get("direct_download_link")
+            download_link = data.get("direct_link")
             if not download_link1:
                 await message.reply_text("❌ Could not find download link from API.")
                 return
-            file_name = data.get("name", "Unknown File")
+            file_name = data.get("file_name", "Unknown File")
     
     # Add Aria2 download
-    download = aria2.add_uris([download_link1])
+    download = aria2.add_uris([download_link])
 
     status_message = await message.reply_text("ᴘʟᴇᴀsᴇ ᴡᴀɪᴛ, ʏᴏᴜʀ ғɪʟᴇ ɪs ᴅᴏᴡɴʟᴏᴀᴅɪɴɢ.✇")
 
