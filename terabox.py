@@ -192,7 +192,7 @@ async def handle_message(client: Client, message: Message):
         await message.reply_text("Please provide a valid Terabox link.")
         return
 
-    encoded_url = urllib.parse.quote(url)
+    encoded_url = urllib.parse.quote(url, safe='')
     api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?url={encoded_url}"
     
     async with aiohttp.ClientSession() as session:
@@ -202,7 +202,7 @@ async def handle_message(client: Client, message: Message):
                 return
             data = await resp.json()
             download_link = data.get("direct_link")
-            if not download_link1:
+            if not download_link:
                 await message.reply_text("❌ Could not find download link from API.")
                 return
             file_name = data.get("file_name", "Unknown File")
