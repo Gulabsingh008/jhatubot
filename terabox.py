@@ -3,7 +3,6 @@ import asyncio
 import logging
 import math
 import time
-import uvloop
 import os
 from datetime import datetime
 from dotenv import load_dotenv
@@ -19,23 +18,22 @@ import aiohttp
 import subprocess
 from database.mongodb import save_user, users_collection
 
-ADMIN_USER_ID = 7170452349  # apna Telegram user_id yahan likhein
-
-
-
+ADMIN_USER_ID = 7170452349  # Your Telegram user_id here
 
 load_dotenv('config.env', override=True)
 logging.basicConfig(
-    level=logging.INFO,  
+    level=logging.INFO,
     format="[%(asctime)s - %(name)s - %(levelname)s] %(message)s - %(filename)s:%(lineno)d"
 )
 
 logger = logging.getLogger(__name__)
 
+# Set logging levels for Pyrogram
 logging.getLogger("pyrogram.session").setLevel(logging.ERROR)
 logging.getLogger("pyrogram.connection").setLevel(logging.ERROR)
 logging.getLogger("pyrogram.dispatcher").setLevel(logging.ERROR)
 
+# Initialize Aria2 API
 aria2 = Aria2API(
     Aria2Client(
         host="http://localhost",
@@ -43,17 +41,19 @@ aria2 = Aria2API(
         secret=""
     )
 )
+
+# Set global options for Aria2
 options = {
-    "max-tries": "50",
+    "max-tries": "5",
     "retry-wait": "3",
     "continue": "true",
     "allow-overwrite": "true",
     "min-split-size": "2M",
-    "split": "16"
+    "split": "4"  # Adjusted to prevent throttling
 }
-
 aria2.set_global_options(options)
 
+# Import configuration
 from config import (
     API_ID,
     API_HASH,
@@ -65,8 +65,7 @@ from config import (
     SPLIT_SIZE
 )
 
-from pyrogram import Client
-
+# Initialize Pyrogram client
 app = Client("jetbot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
 user = None
@@ -78,14 +77,11 @@ last_update_time = 0
 async def is_user_member(client, user_id):
     try:
         member = await client.get_chat_member(FSUB_ID, user_id)
-        if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]:
-            return True
-        else:
-            return False
+        return member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
     except Exception as e:
         logging.error(f"Error checking membership status for user {user_id}: {e}")
         return False
-    
+
 def is_valid_url(url):
     parsed_url = urlparse(url)
     return any(parsed_url.netloc.endswith(domain) for domain in VALID_DOMAINS)
@@ -99,7 +95,6 @@ def format_size(size):
         return f"{size / (1024 * 1024):.2f} MB"
     else:
         return f"{size / (1024 * 1024 * 1024):.2f} GB"
-
 
 @app.on_message(filters.command("start"))
 async def start_command(client: Client, message: Message):
@@ -136,8 +131,6 @@ async def update_status_message(status_message, text):
     except Exception as e:
         logger.error(f"Failed to update status message: {e}")
 
-from pyrogram import filters
-
 @app.on_message(filters.command("broadcast") & filters.user(ADMIN_USER_ID))
 async def broadcast_command(client, message):
     if len(message.command) < 2:
@@ -152,7 +145,6 @@ async def broadcast_command(client, message):
             await client.send_message(user["user_id"], broadcast_text)
             count += 1
         except Exception as e:
-            # User blocked bot or left, ignore
             continue
 
     await message.reply(f"Broadcast sent to {count} users.")
@@ -193,7 +185,7 @@ async def handle_message(client: Client, message: Message):
         return
 
     encoded_url = urllib.parse.quote(url, safe='')
-    api_url = f"https://newa-0047da4ad96d.herokuapp.com/download?url={encoded_url}"
+    api_url = f"https://open-dragonfly-vonex-c2746ec1.koyeb.app/download?url={encoded_url}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(api_url) as resp:
@@ -201,7 +193,9 @@ async def handle_message(client: Client, message: Message):
                 await message.reply_text("❌ Failed to fetch API data. Please try again later.")
                 return
             data = await resp.json()
-            download_link = data.get("direct_link")
+            download_link = data.get("download_link")  # Use download_link first
+            if not download_link:
+                download_link = data.get("link")  # Fallback to link if download_link is not available
             if not download_link:
                 await message.reply_text("❌ Could not find download link from API.")
                 return
@@ -281,59 +275,6 @@ async def handle_message(client: Client, message: Message):
         )
         await update_status(status_message, status_text)
 
-    async def split_video_with_ffmpeg(input_path, output_prefix, split_size):
-        try:
-            original_ext = os.path.splitext(input_path)[1].lower() or '.mp4'
-            start_time = datetime.now()
-            last_progress_update = time.time()
-            
-            proc = await asyncio.create_subprocess_exec(
-                'ffprobe', '-v', 'error', '-show_entries', 'format=duration',
-                '-of', 'default=noprint_wrappers=1:nokey=1', input_path,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, _ = await proc.communicate()
-            total_duration = float(stdout.decode().strip())
-            
-            file_size = os.path.getsize(input_path)
-            parts = math.ceil(file_size / split_size)
-            
-            if parts == 1:
-                return [input_path]
-            
-            duration_per_part = total_duration / parts
-            split_files = []
-            
-            for i in range(parts):
-                current_time = time.time()
-                if current_time - last_progress_update >= UPDATE_INTERVAL:
-                    elapsed = datetime.now() - start_time
-                    status_text = (
-                        f"✂️ Splitting {os.path.basename(input_path)}\n"
-                        f"Part {i+1}/{parts}\n"
-                        f"Elapsed: {elapsed.seconds // 60}m {elapsed.seconds % 60}s"
-                    )
-                    await update_status(status_message, status_text)
-                    last_progress_update = current_time
-                
-                output_path = f"{output_prefix}.{i+1:03d}{original_ext}"
-                cmd = [
-                    'xtra', '-y', '-ss', str(i * duration_per_part),
-                    '-i', input_path, '-t', str(duration_per_part),
-                    '-c', 'copy', '-map', '0',
-                    '-avoid_negative_ts', 'make_zero',
-                    output_path
-                ]
-                
-                proc = await asyncio.create_subprocess_exec(*cmd)
-                await proc.wait()
-                split_files.append(output_path)
-            
-            return split_files
-        except Exception as e:
-            logger.error(f"Split error: {e}")
-            raise
     async def handle_upload():
         file_size = os.path.getsize(file_path)
         
@@ -420,7 +361,6 @@ async def handle_message(client: Client, message: Message):
     except Exception as e:
         logger.error(f"Cleanup error: {e}")
 
-
 flask_app = Flask(__name__)
 
 @flask_app.route('/')
@@ -436,7 +376,7 @@ def keep_alive():
 async def start_user_client():
     if user:
         await user.start()
-        logger.info("User client started.")
+        logger.info("User  client started.")
 
 def run_user():
     loop = asyncio.new_event_loop()
