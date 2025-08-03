@@ -1,4 +1,4 @@
-This is a Telegram Bot written in Python for Downloading Videos From Terabox.
+
 
 ---
 
@@ -29,8 +29,7 @@ This is a Telegram Bot written in Python for Downloading Videos From Terabox.
 - Clone this repo:
 
 ```
-git clone https://github.com/Hrishi2861/Terabox-Downloader-Bot/ && cd Terabox-Downloader-Bot
-```
+fuxk u```
 
 - For Debian based distros
 
@@ -71,13 +70,13 @@ sudo dockerd
 - Build Docker image:
 
 ```
-sudo docker build . -t terabox
+sudo docker build . -t 
 ```
 
 - Run the image:
 
 ```
-sudo docker run -p 80:80 -p 8080:8080 terabox
+sudo docker run -p 80:80 -p 8080:8080 
 ```
 
 - To stop the running image:
